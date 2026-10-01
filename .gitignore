@@ -1,0 +1,27 @@
+# .NET build output
+[Bb]in/
+[Oo]bj/
+[Aa]rtifacts/
+
+# Visual Studio / IDE files
+.vs/
+.idea/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Test and coverage output
+[Tt]est[Rr]esult*/
+coverage/
+coverage.*
+*.coverage
+*.coveragexml
+
+# Operating system files
+.DS_Store
+Thumbs.db
+Desktop.ini
+AGENTS.md
+src/Services/Catalog/Catalog.Api/appsettings.json
+docker-compose.yml
