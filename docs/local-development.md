@@ -87,3 +87,5 @@ docker compose up --build -d
 ```
 
 This starts SQL Server, Catalog, and Orders. Orders calls Catalog at the Compose service address `http://catalog:8080/`; host ports remain 5276 and 5126. Compose does not apply migrations automatically. The Compose database logins are development-only and use the local SQL Server administrator; production deployments must use dedicated least-privilege identities and secret storage.
+
+Both APIs expose `/health/live` (process liveness) and `/health/ready` (SQL Server connectivity). Responses include `X-Trace-Id` for request correlation. Framework and application exception logs use structured logging. OpenTelemetry export is not enabled until an OTLP collector endpoint is selected; ASP.NET Core and HttpClient activities remain available through the .NET diagnostics pipeline.

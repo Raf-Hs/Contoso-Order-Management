@@ -13,6 +13,10 @@ using Orders.Application.Security;
 using Orders.Infrastructure.Persistence;
 using Orders.Infrastructure.Integrations;
 using Orders.Api.Security;
+using Orders.Api.HealthChecks;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
+using System.Diagnostics;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,6 +25,14 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddProblemDetails();
 builder.Services.AddExceptionHandler<ApiExceptionHandler>();
+builder.Services.AddHealthChecks()
+    .AddCheck(
+        "self",
+        () => HealthCheckResult.Healthy(),
+        tags: ["live"])
+    .AddCheck<OrdersDatabaseHealthCheck>(
+        "database",
+        tags: ["ready"]);
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -72,8 +84,27 @@ builder.Services.AddHttpClient<IProductCatalog, CatalogProductClient>(client =>
 var app = builder.Build();
 
 app.UseExceptionHandler();
+app.Use(async (context, next) =>
+{
+    var traceId = Activity.Current?.TraceId.ToString() ?? context.TraceIdentifier;
+    context.Response.OnStarting(() =>
+    {
+        context.Response.Headers["X-Trace-Id"] = traceId;
+        return Task.CompletedTask;
+    });
+    await next();
+});
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.MapHealthChecks("/health/live", new HealthCheckOptions
+{
+    Predicate = check => check.Tags.Contains("live")
+});
+app.MapHealthChecks("/health/ready", new HealthCheckOptions
+{
+    Predicate = check => check.Tags.Contains("ready")
+});
 
 if (app.Environment.IsDevelopment())
 {

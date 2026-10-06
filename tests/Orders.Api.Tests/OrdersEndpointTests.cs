@@ -31,6 +31,18 @@ public sealed class OrdersEndpointTests
     }
 
     [Fact]
+    public async Task LiveHealth_IsAnonymousAndReturnsTraceId()
+    {
+        using var factory = new OrdersApiFactory();
+        using var client = factory.CreateClient();
+
+        var response = await client.GetAsync("/health/live");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.True(response.Headers.Contains("X-Trace-Id"));
+    }
+
+    [Fact]
     public async Task GetOrders_WithoutReadPermission_ReturnsForbidden()
     {
         using var factory = new OrdersApiFactory();

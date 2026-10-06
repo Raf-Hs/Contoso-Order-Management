@@ -19,6 +19,18 @@ namespace Catalog.Api.Tests;
 public sealed class ProductEndpointTests
 {
     [Fact]
+    public async Task LiveHealth_IsAnonymousAndReturnsTraceId()
+    {
+        using var factory = new CatalogApiFactory();
+        using var client = factory.CreateClient();
+
+        var response = await client.GetAsync("/health/live");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.True(response.Headers.Contains("X-Trace-Id"));
+    }
+
+    [Fact]
     public async Task GetProducts_IsPublic()
     {
         using var factory = new CatalogApiFactory();

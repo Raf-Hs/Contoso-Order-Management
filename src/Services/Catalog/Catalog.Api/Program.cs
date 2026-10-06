@@ -9,6 +9,10 @@ using Catalog.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Catalog.Api.Errors;
+using Catalog.Api.HealthChecks;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
+using System.Diagnostics;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,6 +21,14 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddProblemDetails();
 builder.Services.AddExceptionHandler<CatalogExceptionHandler>();
+builder.Services.AddHealthChecks()
+    .AddCheck(
+        "self",
+        () => HealthCheckResult.Healthy(),
+        tags: ["live"])
+    .AddCheck<CatalogDatabaseHealthCheck>(
+        "database",
+        tags: ["ready"]);
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -53,8 +65,27 @@ builder.Services.AddScoped<DecreaseStockHandler>();
 var app = builder.Build();
 
 app.UseExceptionHandler();
+app.Use(async (context, next) =>
+{
+    var traceId = Activity.Current?.TraceId.ToString() ?? context.TraceIdentifier;
+    context.Response.OnStarting(() =>
+    {
+        context.Response.Headers["X-Trace-Id"] = traceId;
+        return Task.CompletedTask;
+    });
+    await next();
+});
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.MapHealthChecks("/health/live", new HealthCheckOptions
+{
+    Predicate = check => check.Tags.Contains("live")
+});
+app.MapHealthChecks("/health/ready", new HealthCheckOptions
+{
+    Predicate = check => check.Tags.Contains("ready")
+});
 
 if (app.Environment.IsDevelopment())
 {
