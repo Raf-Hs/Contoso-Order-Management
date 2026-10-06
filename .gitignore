@@ -23,5 +23,6 @@ coverage.*
 Thumbs.db
 Desktop.ini
 AGENTS.md
-src/Services/Catalog/Catalog.Api/appsettings.json
-docker-compose.yml
+.env
+.env.*
+!.env.example
