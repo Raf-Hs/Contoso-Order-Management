@@ -78,8 +78,6 @@ public sealed class OrdersController : ControllerBase
             request.CustomerId,
             request.Items.Select(item => new CreateOrderItem(
                 item.ProductId,
-                item.ProductName,
-                item.UnitPrice,
                 item.Quantity)).ToArray()),
             cancellationToken);
 
@@ -163,8 +161,6 @@ public sealed record CreateOrderRequest(
 
 public sealed record CreateOrderItemRequest(
     Guid ProductId,
-    [property: Required, StringLength(200)] string ProductName,
-    [property: Range(typeof(decimal), "0", "79228162514264337593543950335")] decimal UnitPrice,
     [property: Range(1, int.MaxValue)] int Quantity)
     : IValidatableObject
 {

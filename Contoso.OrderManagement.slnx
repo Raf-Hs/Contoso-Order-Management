@@ -17,6 +17,8 @@
     <Project Path="src/Services/Orders/Orders.Infrastructure/Orders.Infrastructure.csproj" />
   </Folder>
   <Folder Name="/tests/">
+    <Project Path="tests/Orders.Application.Tests/Orders.Application.Tests.csproj" />
     <Project Path="tests/Orders.Domain.Tests/Orders.Domain.Tests.csproj" />
+    <Project Path="tests/Orders.Infrastructure.Tests/Orders.Infrastructure.Tests.csproj" />
   </Folder>
 </Solution>

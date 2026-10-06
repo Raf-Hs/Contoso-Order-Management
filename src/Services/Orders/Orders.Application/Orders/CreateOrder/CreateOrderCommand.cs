@@ -6,6 +6,4 @@ public sealed record CreateOrderCommand(
 
 public sealed record CreateOrderItem(
     Guid ProductId,
-    string ProductName,
-    decimal UnitPrice,
     int Quantity);

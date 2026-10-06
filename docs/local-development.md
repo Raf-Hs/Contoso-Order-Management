@@ -42,6 +42,12 @@ dotnet user-secrets set "Authentication:Audience" "<orders-api-audience>" --proj
 
 Tokens must contain a GUID `sub` claim and the relevant `permission` claim (`orders.read`, `orders.create`, `orders.approve`, `orders.reject`, `orders.cancel`, or `orders.start-preparing`). No development authentication bypass is enabled.
 
+## Orders and Catalog behavior
+
+Creating an order sends only product IDs and quantities from the client. Orders synchronously reads each product from Catalog and snapshots the current product name and price; a missing product returns 404, insufficient reported stock returns 409, and an unavailable Catalog returns 503. Catalog currently has no active/inactive product state, so inactive-product handling is not represented.
+
+This is an availability check, not a stock reservation. Concurrent orders can both pass the check; inventory reservation and cross-service consistency are not implemented. The synchronous Catalog call currently expects Catalog at `http://localhost:5276/` by default; override it with `Services__Catalog__BaseUrl` when running in another topology.
+
 ## Apply migrations
 
 Run each service's migration against its own database. These commands change the target database; inspect the target connection string before running them.

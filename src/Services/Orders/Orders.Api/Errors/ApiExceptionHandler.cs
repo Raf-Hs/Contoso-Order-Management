@@ -17,7 +17,10 @@ public sealed class ApiExceptionHandler(
         var (status, title) = exception switch
         {
             OrderNotFoundException => (StatusCodes.Status404NotFound, "Order not found"),
+            CatalogProductNotFoundException => (StatusCodes.Status404NotFound, "Product not found"),
             OrderStateException => (StatusCodes.Status409Conflict, "Order state conflict"),
+            InsufficientProductStockException => (StatusCodes.Status409Conflict, "Insufficient product stock"),
+            CatalogUnavailableException => (StatusCodes.Status503ServiceUnavailable, "Catalog unavailable"),
             UnauthorizedAccessException => (StatusCodes.Status403Forbidden, "Forbidden"),
             ArgumentException => (StatusCodes.Status400BadRequest, "Invalid request"),
             _ => (StatusCodes.Status500InternalServerError, "An unexpected error occurred")
@@ -35,9 +38,12 @@ public sealed class ApiExceptionHandler(
         {
             Status = status,
             Title = title,
-            Detail = status == StatusCodes.Status500InternalServerError
-                ? "The request could not be completed."
-                : exception.Message,
+            Detail = status switch
+            {
+                StatusCodes.Status500InternalServerError => "The request could not be completed.",
+                StatusCodes.Status503ServiceUnavailable => "The request could not be completed because Catalog is unavailable.",
+                _ => exception.Message
+            },
             Instance = httpContext.Request.Path
         };
         problemDetails.Extensions["traceId"] =

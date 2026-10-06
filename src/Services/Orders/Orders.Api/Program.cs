@@ -11,6 +11,7 @@ using Orders.Application.Orders.RejectOrder;
 using Orders.Application.Orders.StartPreparingOrder;
 using Orders.Application.Security;
 using Orders.Infrastructure.Persistence;
+using Orders.Infrastructure.Integrations;
 using Orders.Api.Security;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -61,6 +62,12 @@ builder.Services.AddScoped<ApproveOrderHandler>();
 builder.Services.AddScoped<RejectOrderHandler>();
 builder.Services.AddScoped<CancelOrderHandler>();
 builder.Services.AddScoped<StartPreparingOrderHandler>();
+builder.Services.AddHttpClient<IProductCatalog, CatalogProductClient>(client =>
+{
+    var catalogBaseUrl = builder.Configuration["Services:Catalog:BaseUrl"]
+        ?? "http://localhost:5276/";
+    client.BaseAddress = new Uri(catalogBaseUrl);
+});
 
 var app = builder.Build();
 
