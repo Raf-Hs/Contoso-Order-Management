@@ -1,0 +1,11 @@
+.git/
+.vscode/
+.env
+.env.*
+!.env.example
+AGENTS.md
+**/bin/
+**/obj/
+**/TestResults/
+**/appsettings.Development.json
+**/node_modules/

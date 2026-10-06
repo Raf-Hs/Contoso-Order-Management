@@ -15,7 +15,7 @@ Copy-Item .env.example .env
 docker compose up -d sqlserver
 ```
 
-The Compose file starts SQL Server only. The two databases are created by their EF migrations below; no schema is applied automatically at API startup.
+The SQL Server service uses a persistent named volume. The two databases are created by their EF migrations below; no schema is applied automatically at API startup.
 
 ## Configure application connection strings
 
@@ -77,3 +77,13 @@ dotnet run --project src/Services/Orders/Orders.Api/Orders.Api.csproj
 ```
 
 Swagger is enabled in the Development environment. Catalog listens on port 5276 and Orders on port 5126 under the checked-in launch profiles.
+
+## Run the containerized services
+
+Set the SQL password, trusted JWT authority, and both API audiences in `.env` (see `.env.example`). Apply the migrations using the host commands above, then start all services:
+
+```powershell
+docker compose up --build -d
+```
+
+This starts SQL Server, Catalog, and Orders. Orders calls Catalog at the Compose service address `http://catalog:8080/`; host ports remain 5276 and 5126. Compose does not apply migrations automatically. The Compose database logins are development-only and use the local SQL Server administrator; production deployments must use dedicated least-privilege identities and secret storage.
