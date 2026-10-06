@@ -27,9 +27,10 @@ public sealed class OrdersDbContext : DbContext
                 .HasConversion<string>()
                 .HasMaxLength(50);
 
-            entity.HasMany<OrderItem>()
+            entity.HasMany(order => order.Items)
                 .WithOne()
                 .HasForeignKey("OrderId")
+                .IsRequired()
                 .OnDelete(DeleteBehavior.Cascade);
         });
 

@@ -17,11 +17,23 @@ public sealed class OrderItem : Entity<Guid>
     {
         if (productId == Guid.Empty)
             throw new ArgumentException(
-                "Product ID is required.");
+                "Product ID is required.",
+                nameof(productId));
+
+        if (string.IsNullOrWhiteSpace(productName))
+            throw new ArgumentException(
+                "Product name is required.",
+                nameof(productName));
+
+        if (unitPrice < 0)
+            throw new ArgumentOutOfRangeException(
+                nameof(unitPrice),
+                "Unit price cannot be negative.");
 
         if (quantity <= 0)
             throw new ArgumentException(
-                "Quantity must be greater than zero.");
+                "Quantity must be greater than zero.",
+                nameof(quantity));
 
         ProductId = productId;
         ProductName = productName;

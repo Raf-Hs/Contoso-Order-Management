@@ -1,5 +1,6 @@
 using BuildingBlocks.Domain;
 using Orders.Domain.Enums;
+using Orders.Domain.Exceptions;
 
 namespace Orders.Domain.Entities;
 
@@ -49,7 +50,7 @@ public sealed class Order : Entity<Guid>
         int quantity)
     {
         if (Status != OrderStatus.Draft)
-            throw new InvalidOperationException(
+            throw new OrderStateException(
                 "Items can only be added to draft orders.");
 
         _items.Add(
@@ -63,11 +64,11 @@ public sealed class Order : Entity<Guid>
     public void Submit()
     {
         if (_items.Count == 0)
-            throw new InvalidOperationException(
+            throw new OrderStateException(
                 "Order must contain at least one item.");
 
         if (Status != OrderStatus.Draft)
-            throw new InvalidOperationException(
+            throw new OrderStateException(
                 "Only draft orders can be submitted.");
 
         Status = OrderStatus.PendingApproval;
@@ -76,7 +77,7 @@ public sealed class Order : Entity<Guid>
     public void Approve()
     {
         if (Status != OrderStatus.PendingApproval)
-            throw new InvalidOperationException(
+            throw new OrderStateException(
                 "Only pending approval orders can be approved.");
 
         Status = OrderStatus.Approved;
@@ -85,16 +86,25 @@ public sealed class Order : Entity<Guid>
     public void Reject()
     {
         if (Status != OrderStatus.PendingApproval)
-            throw new InvalidOperationException(
+            throw new OrderStateException(
                 "Only pending approval orders can be rejected.");
 
         Status = OrderStatus.Rejected;
     }
 
+    public void Cancel()
+    {
+        if (Status is not (OrderStatus.Draft or OrderStatus.PendingApproval or OrderStatus.Approved))
+            throw new OrderStateException(
+                "Only draft, pending approval, or approved orders can be cancelled.");
+
+        Status = OrderStatus.Cancelled;
+    }
+
     public void StartPreparing()
     {
         if (Status != OrderStatus.Approved)
-            throw new InvalidOperationException(
+            throw new OrderStateException(
                 "Only approved orders can start preparation.");
 
         Status = OrderStatus.Preparing;

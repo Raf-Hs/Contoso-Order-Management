@@ -1,7 +1,6 @@
 <Solution>
   <Folder Name="/src/" />
   <Folder Name="/src/BuildingBlocks/">
-    <Project Path="src/BuildingBlocks/BuildingBlocks.Application/BuildingBlocks.Application.csproj" />
     <Project Path="src/BuildingBlocks/BuildingBlocks.Domain/BuildingBlocks.Domain.csproj" />
   </Folder>
   <Folder Name="/src/Services/" />
@@ -16,5 +15,8 @@
     <Project Path="src/Services/Orders/Orders.Application/Orders.Application.csproj" />
     <Project Path="src/Services/Orders/Orders.Domain/Orders.Domain.csproj" />
     <Project Path="src/Services/Orders/Orders.Infrastructure/Orders.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Orders.Domain.Tests/Orders.Domain.Tests.csproj" />
   </Folder>
 </Solution>
