@@ -1,4 +1,5 @@
 using BuildingBlocks.Domain;
+using Catalog.Domain.Exceptions;
 
 namespace Catalog.Domain.Entities;
 
@@ -20,6 +21,8 @@ public sealed class Product : Entity<Guid>
 
             if (string.IsNullOrWhiteSpace(name))
                 throw new ArgumentException("Name is required.", nameof(name));
+
+            ArgumentNullException.ThrowIfNull(description);
 
             if (price < 0)
                 throw new ArgumentException("Price cannot be negative.", nameof(price));
@@ -46,6 +49,31 @@ public sealed class Product : Entity<Guid>
 
     public int AvailableQuantity { get; private set; }
 
+    public void UpdateDetails(
+        string sku,
+        string name,
+        string description,
+        decimal price)
+    {
+        if (string.IsNullOrWhiteSpace(sku))
+            throw new ArgumentException("SKU is required.", nameof(sku));
+
+        if (string.IsNullOrWhiteSpace(name))
+            throw new ArgumentException("Name is required.", nameof(name));
+
+        ArgumentNullException.ThrowIfNull(description);
+
+        if (price < 0)
+            throw new ArgumentOutOfRangeException(
+                nameof(price),
+                "Price cannot be negative.");
+
+        Sku = sku;
+        Name = name;
+        Description = description;
+        Price = price;
+    }
+
     public bool IsAvailable(int quantity)
     {
         return quantity > 0 &&
@@ -65,7 +93,7 @@ public sealed class Product : Entity<Guid>
     public void DecreaseStock(int quantity)
     {
         if (!IsAvailable(quantity))
-            throw new InvalidOperationException(
+            throw new InsufficientInventoryException(
                 "Insufficient inventory.");
 
         AvailableQuantity -= quantity;

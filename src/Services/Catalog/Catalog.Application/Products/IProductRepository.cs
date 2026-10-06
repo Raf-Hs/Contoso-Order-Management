@@ -11,6 +11,11 @@ public interface IProductRepository
     Task<IReadOnlyCollection<Product>> GetAllAsync(
         CancellationToken cancellationToken = default);
 
+    Task<bool> SkuExistsAsync(
+        string sku,
+        Guid? excludingProductId = null,
+        CancellationToken cancellationToken = default);
+
     Task AddAsync(
         Product product,
         CancellationToken cancellationToken = default);

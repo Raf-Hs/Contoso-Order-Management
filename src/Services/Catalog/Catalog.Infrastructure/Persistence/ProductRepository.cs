@@ -1,5 +1,6 @@
 using Catalog.Application.Products;
 using Catalog.Domain.Entities;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 
 namespace Catalog.Infrastructure.Persistence;
@@ -31,6 +32,18 @@ public sealed class ProductRepository : IProductRepository
             .ToListAsync(cancellationToken);
     }
 
+    public Task<bool> SkuExistsAsync(
+        string sku,
+        Guid? excludingProductId = null,
+        CancellationToken cancellationToken = default)
+    {
+        return _context.Products
+            .AnyAsync(
+                product => product.Sku == sku
+                    && (!excludingProductId.HasValue || product.Id != excludingProductId.Value),
+                cancellationToken);
+    }
+
     public async Task AddAsync(
         Product product,
         CancellationToken cancellationToken = default)
@@ -40,9 +53,22 @@ public sealed class ProductRepository : IProductRepository
             cancellationToken);
     }
 
-    public Task SaveChangesAsync(
+    public async Task SaveChangesAsync(
         CancellationToken cancellationToken = default)
     {
-        return _context.SaveChangesAsync(cancellationToken);
+        try
+        {
+            await _context.SaveChangesAsync(cancellationToken);
+        }
+        catch (DbUpdateException exception)
+            when (exception.InnerException is SqlException { Number: 2601 or 2627 })
+        {
+            var sku = _context.ChangeTracker.Entries<Product>()
+                .Where(entry => entry.State is EntityState.Added or EntityState.Modified)
+                .Select(entry => entry.Entity.Sku)
+                .FirstOrDefault() ?? "unknown";
+
+            throw new DuplicateProductSkuException(sku, exception);
+        }
     }
 }

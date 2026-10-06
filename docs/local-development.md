@@ -42,6 +42,14 @@ dotnet user-secrets set "Authentication:Audience" "<orders-api-audience>" --proj
 
 Tokens must contain a GUID `sub` claim and the relevant `permission` claim (`orders.read`, `orders.create`, `orders.approve`, `orders.reject`, `orders.cancel`, or `orders.start-preparing`). No development authentication bypass is enabled.
 
+Catalog mutations also require JWT Bearer tokens. Catalog product reads are intentionally public in this first local version because Orders performs a server-side product lookup without token exchange. Configure a Catalog audience and issue `catalog.create`, `catalog.update`, or `catalog.stock` permissions for the corresponding write operations:
+
+```powershell
+dotnet user-secrets init --project src/Services/Catalog/Catalog.Api/Catalog.Api.csproj
+dotnet user-secrets set "Authentication:Authority" "https://<trusted-issuer>" --project src/Services/Catalog/Catalog.Api/Catalog.Api.csproj
+dotnet user-secrets set "Authentication:Audience" "<catalog-api-audience>" --project src/Services/Catalog/Catalog.Api/Catalog.Api.csproj
+```
+
 ## Orders and Catalog behavior
 
 Creating an order sends only product IDs and quantities from the client. Orders synchronously reads each product from Catalog and snapshots the current product name and price; a missing product returns 404, insufficient reported stock returns 409, and an unavailable Catalog returns 503. Catalog currently has no active/inactive product state, so inactive-product handling is not represented.

@@ -1,6 +1,24 @@
 @Catalog.Api_HostAddress = http://localhost:5276
+@CatalogToken = REPLACE_WITH_JWT
 
-GET {{Catalog.Api_HostAddress}}/weatherforecast/
+GET {{Catalog.Api_HostAddress}}/api/products
 Accept: application/json
 
 ###
+
+GET {{Catalog.Api_HostAddress}}/api/products/22222222-2222-2222-2222-222222222222
+Accept: application/json
+
+###
+
+POST {{Catalog.Api_HostAddress}}/api/products
+Content-Type: application/json
+Authorization: Bearer {{CatalogToken}}
+
+{
+  "sku": "SKU-100",
+  "name": "Example product",
+  "description": "Local API example",
+  "price": 12.50,
+  "availableQuantity": 5
+}

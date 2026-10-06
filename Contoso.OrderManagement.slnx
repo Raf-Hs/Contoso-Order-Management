@@ -17,6 +17,10 @@
     <Project Path="src/Services/Orders/Orders.Infrastructure/Orders.Infrastructure.csproj" />
   </Folder>
   <Folder Name="/tests/">
+    <Project Path="tests/Catalog.Api.Tests/Catalog.Api.Tests.csproj" />
+    <Project Path="tests/Catalog.Application.Tests/Catalog.Application.Tests.csproj" />
+    <Project Path="tests/Catalog.Domain.Tests/Catalog.Domain.Tests.csproj" />
+    <Project Path="tests/Catalog.Infrastructure.Tests/Catalog.Infrastructure.Tests.csproj" />
     <Project Path="tests/Orders.Api.Tests/Orders.Api.Tests.csproj" />
     <Project Path="tests/Orders.Application.Tests/Orders.Application.Tests.csproj" />
     <Project Path="tests/Orders.Domain.Tests/Orders.Domain.Tests.csproj" />
