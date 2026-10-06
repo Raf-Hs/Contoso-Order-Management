@@ -50,9 +50,13 @@ public sealed class ApiExceptionHandler(
             Activity.Current?.Id ?? httpContext.TraceIdentifier;
 
         httpContext.Response.StatusCode = status;
-        await httpContext.Response.WriteAsJsonAsync(
-            problemDetails,
-            cancellationToken);
+        var problemDetailsService = httpContext.RequestServices
+            .GetRequiredService<IProblemDetailsService>();
+        await problemDetailsService.WriteAsync(new ProblemDetailsContext
+        {
+            HttpContext = httpContext,
+            ProblemDetails = problemDetails
+        });
 
         return true;
     }

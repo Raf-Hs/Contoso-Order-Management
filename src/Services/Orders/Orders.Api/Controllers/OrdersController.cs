@@ -140,11 +140,13 @@ public sealed class OrdersController : ControllerBase
     }
 }
 
-public sealed record CreateOrderRequest(
-    Guid CustomerId,
-    [property: Required] IReadOnlyCollection<CreateOrderItemRequest> Items)
-    : IValidatableObject
+public sealed class CreateOrderRequest : IValidatableObject
 {
+    public Guid CustomerId { get; init; }
+
+    [Required]
+    public IReadOnlyCollection<CreateOrderItemRequest> Items { get; init; } = [];
+
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
         if (CustomerId == Guid.Empty)
@@ -159,11 +161,13 @@ public sealed record CreateOrderRequest(
     }
 }
 
-public sealed record CreateOrderItemRequest(
-    Guid ProductId,
-    [property: Range(1, int.MaxValue)] int Quantity)
-    : IValidatableObject
+public sealed class CreateOrderItemRequest : IValidatableObject
 {
+    public Guid ProductId { get; init; }
+
+    [Range(1, int.MaxValue)]
+    public int Quantity { get; init; }
+
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
         if (ProductId == Guid.Empty)
